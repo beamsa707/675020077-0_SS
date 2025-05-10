@@ -1,0 +1,229 @@
+---
+title: "plant_growth"
+author: "sathita"
+date: "2025-05-04"
+output: github_document
+---
+```{r}
+options(repos = c(CRAN = "https://cran.r-project.org"))
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+plant_growth_data <- read.csv("plant_growth_data.csv")
+```
+
+```{r}
+head(plant_growth_data)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+# คำถามข้อ 1
+# 1. Find the mean of Height_cm, Leaf_Count, Flower_Count, Soil_pH, Chlorophyll_Content, Stem_Diameter, and Days_to_Flowering for each Species and Treatment.
+# 1. หาค่าเฉลี่ยของ Height_cm, Leaf_Count, Flower_Count, Soil_pH, Chlorophyll_Content, Stem_Diameter และ Days_to_Flowering สำหรับแต่ละ Species และ Treatment
+# คำตอบข้อที่ 1
+# คำนวณค่าเฉลี่ยตาม Species และ Treatment
+
+summary_data <- plant_growth_data %>%
+  group_by(Species, Treatment) %>%
+  summarise(
+    avg_Height_cm = mean(Height_cm, na.rm = TRUE),
+    avg_Leaf_Count = mean(Leaf_Count, na.rm = TRUE),
+    avg_Flower_Count = mean(Flower_Count, na.rm = TRUE),
+    avg_Soil_pH = mean(Soil_pH, na.rm = TRUE),
+    avg_Chlorophyll_Content = mean(Chlorophyll_Content, na.rm = TRUE),
+    avg_Stem_Diameter = mean(Stem_Diameter, na.rm = TRUE),
+    avg_Days_to_Flowering = mean(Days_to_Flowering, na.rm = TRUE)
+  )
+
+# แสดงผลด้วย
+ print(summary_data)
+```
+```{r}
+# คำถามข้อ 2
+# 2. Create a new data frame containing Species, Treatment, and the means of each parameter.Use head() to display your new data frame
+# 2. สร้าง data frame ใหม่ที่ประกอบด้วย Species, Treatment และค่าเฉลี่ยของพารามิเตอร์แต่ละตัว ใช้ head() เพื่อแสดง data frame ใหม่ของคุณ
+# คำตอบข้อที่ 2
+# แสดงผลด้วย head()
+ head(summary_data)
+```
+
+```{r}
+# คำถามข้อ 3
+# 3. Plot a bar graph of Height_cm, Leaf_Count, Flower_Count, Soil_pH, Chlorophyll_Content, Stem_Diameter, and Days_to_Flowering for Rosa/Control (Use the mean of each measurement).
+# 3. พล็อตกราฟแท่งของ Height_cm, Leaf_Count, Flower_Count, Soil_pH, Chlorophyll_Content, Stem_Diameter และ Days_to_Flowering ใน Rosa/Control (ใช้ค่าเฉลี่ยของแต่ละการวัด)
+# คำตอบข้อ 3
+rosa_control_means <- plant_growth_data %>%
+  filter(Species == "Rosa", Treatment == "Control") %>%
+  summarise(
+    Height_cm = mean(Height_cm, na.rm = TRUE),
+    Leaf_Count = mean(Leaf_Count, na.rm = TRUE),
+    Flower_Count = mean(Flower_Count, na.rm = TRUE),
+    Soil_pH = mean(Soil_pH, na.rm = TRUE),
+    Chlorophyll_Content = mean(Chlorophyll_Content, na.rm = TRUE),
+    Stem_Diameter = mean(Stem_Diameter, na.rm = TRUE),
+    Days_to_Flowering = mean(Days_to_Flowering, na.rm = TRUE)
+  )
+
+print(rosa_control_means) 
+
+```
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+```{r}
+# แปลงให้อยู่ในรูป long format สำหรับการพล็อตกราฟ ggplot
+rosa_long <- tidyr::pivot_longer(
+  rosa_control_means,
+  cols = everything(),
+  names_to = "Parameter",
+  values_to = "Mean_Value"
+)
+```
+```{r}
+install.packages("tidyr")
+```
+```{r}
+# แปลงให้อยู่ในรูป long format สำหรับการพล็อตกราฟ ggplot
+rosa_long <- tidyr::pivot_longer(
+  rosa_control_means,
+  cols = everything(),
+  names_to = "Parameter",
+  values_to = "Mean_Value"
+)
+# สร้างกราฟแท่ง
+ggplot(rosa_long, aes(x = Parameter, y = Mean_Value)) +
+  geom_col(fill = "purple") +
+  labs(
+    title = "Mean Growth Parameters in Rosa (Control)",
+    x = "Parameter",
+    y = "Mean Value"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
+# คำถามข้อ 4
+# 4. Compare the mean of Height_cm between Species in the control group using bar graphs.
+# 4. เปรียบเทียบค่าเฉลี่ยของ Height_cm ระหว่าง Species ในกลุ่ม control โดยใช้กราฟแท่ง
+# ตรวจสอบให้แน่ใจว่าคุณได้โหลด package ที่จำเป็นแล้ว
+# library(dplyr) # ถ้ายังไม่ได้โหลด
+# library(ggplot2) # ถ้ายังไม่ได้โหลด
+
+# สมมติว่า data frame ของคุณชื่อ plant_growth_data และได้โหลดเข้ามาเรียบร้อยแล้ว
+
+# 1. กรองข้อมูลเฉพาะกลุ่ม Control และคำนวณค่าเฉลี่ย Height_cm ของแต่ละ Species
+control_species_height_avg <- plant_growth_data %>%
+  filter(Treatment == "Control") %>%          # เลือกเฉพาะกลุ่ม Control
+  group_by(Species) %>%                       # จัดกลุ่มตาม Species
+  summarise(
+    Mean_Height_cm = mean(Height_cm, na.rm = TRUE) # คำนวณค่าเฉลี่ยความสูง
+  )
+
+# ตรวจสอบผลลัพธ์ (optional)
+print(control_species_height_avg)
+
+# 2. สร้างกราฟแท่งเปรียบเทียบค่าเฉลี่ย Height_cm ระหว่าง Species ในกลุ่ม Control
+ggplot(control_species_height_avg, aes(x = Species, y = Mean_Height_cm, fill = Species)) +
+  geom_col(show.legend = FALSE) + # geom_col สำหรับค่า y ที่คำนวณไว้แล้ว, show.legend=FALSE เพราะสีซ้ำซ้อนกับแกน x
+  geom_text(aes(label = round(Mean_Height_cm, 2)), vjust = -0.5, size = 3.5) + # แสดงตัวเลขค่าเฉลี่ยบนแท่ง
+  labs(
+    title = "Average Height (cm) by Species in Control Group",
+    x = "Species",
+    y = "Average Height (cm)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) # หมุนชื่อแกน X ให้อ่านง่าย (ถ้าชื่อ Species ยาว)
+```
+
+```{r}
+# คำถามข้อ 5
+# 5. Compare the mean of Chlorophyll_Content between Species in the fertilizer group using bar graphs.
+# 5. เปรียบเทียบค่าเฉลี่ยของ Chlorophyll_Content ระหว่าง Species ในกลุ่ม fertilizer โดยใช้กราฟแท่ง
+# สมมติว่า data frame ของคุณชื่อ plant_growth_data และได้โหลดเข้ามาเรียบร้อยแล้ว
+# และมีคอลัมน์ Treatment, Species, และ Chlorophyll_Content
+
+# 1. กรองข้อมูลเฉพาะกลุ่ม Fertilizer และคำนวณค่าเฉลี่ย Chlorophyll_Content ของแต่ละ Species
+fertilizer_species_chloro_avg <- plant_growth_data %>%
+  filter(Treatment == "Fertilizer") %>%       # เลือกเฉพาะกลุ่ม Fertilizer (ตรวจสอบชื่อให้ตรงกับในข้อมูลของคุณ)
+  group_by(Species) %>%                       # จัดกลุ่มตาม Species
+  summarise(
+    Mean_Chlorophyll = mean(Chlorophyll_Content, na.rm = TRUE) # คำนวณค่าเฉลี่ย Chlorophyll Content
+  )
+
+# ตรวจสอบผลลัพธ์ (optional)
+print(fertilizer_species_chloro_avg)
+
+# 2. สร้างกราฟแท่งเปรียบเทียบค่าเฉลี่ย Chlorophyll_Content ระหว่าง Species ในกลุ่ม Fertilizer
+ggplot(fertilizer_species_chloro_avg, aes(x = Species, y = Mean_Chlorophyll, fill = Species)) +
+  geom_col(show.legend = FALSE) + # geom_col สำหรับค่า y ที่คำนวณไว้แล้ว
+  geom_text(aes(label = round(Mean_Chlorophyll, 2)), vjust = -0.5, size = 3.5) + # แสดงตัวเลขค่าเฉลี่ยบนแท่ง
+  labs(
+    title = "Average Chlorophyll Content by Species in Fertilizer Group",
+    x = "Species",
+    y = "Average Chlorophyll Content (e.g., SPAD units)" # ปรับหน่วยตามข้อมูลจริง
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) # หมุนชื่อแกน X ให้อ่านง่าย
+```
+
+```{r}
+# คำถาม 6
+# 6. Compare the mean of Days_to_Flowering for all Species and Treatments using bar graphs.
+# 6. เปรียบเทียบค่าเฉลี่ยของ Days_to_Flowering ของทุก Species และ Treatment โดยใช้กราฟแท่ง
+# คำตอบข้อที่ 6
+# ตรวจสอบให้แน่ใจว่าคุณได้โหลด package ที่จำเป็นแล้ว
+# library(dplyr)     # ถ้ายังไม่ได้โหลด
+# library(ggplot2)   # ถ้ายังไม่ได้โหลด
+
+# สมมติว่า data frame ของคุณชื่อ plant_growth_data และได้โหลดเข้ามาเรียบร้อยแล้ว
+# และมีคอลัมน์ Species, Treatment, และ Days_to_Flowering
+
+# 1. คำนวณค่าเฉลี่ย Days_to_Flowering สำหรับแต่ละการรวมกันของ Species และ Treatment
+species_treatment_flowering_avg <- plant_growth_data %>%
+  group_by(Species, Treatment) %>%                       # จัดกลุ่มตาม Species และ Treatment
+  summarise(
+    Mean_Days_to_Flowering = mean(Days_to_Flowering, na.rm = TRUE), # คำนวณค่าเฉลี่ย
+    .groups = 'drop' #  .groups = 'drop' เป็น good practice หลัง summarise
+  )
+
+# ตรวจสอบผลลัพธ์ (optional)
+print(species_treatment_flowering_avg)
+
+# 2. สร้างกราฟแท่งแบบกลุ่มเปรียบเทียบค่าเฉลี่ย Days_to_Flowering
+ggplot(species_treatment_flowering_avg, aes(x = Species, y = Mean_Days_to_Flowering, fill = Treatment)) +
+  geom_col(position = "dodge") + # "dodge" เพื่อให้แท่งของ Treatment ต่างๆ แสดงข้างกันสำหรับแต่ละ Species
+  geom_text(
+    aes(label = round(Mean_Days_to_Flowering, 1)), # แสดงตัวเลขค่าเฉลี่ย (ทศนิยม 1 ตำแหน่ง)
+    position = position_dodge(width = 0.9),    # จัดตำแหน่งตัวเลขให้ตรงกับแท่งที่ dodge
+    vjust = -0.5,                              # ปรับตำแหน่งแนวตั้งของตัวเลข (ให้อยู่เหนือแท่ง)
+    size = 3                                   # ขนาดตัวอักษร
+  ) +
+  labs(
+    title = "Average Days to Flowering by Species and Treatment",
+    x = "Species",
+    y = "Average Days to Flowering",
+    fill = "Treatment Group" # เปลี่ยนชื่อ legend ให้สื่อความหมาย
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), # หมุนชื่อแกน X
+    legend.position = "top" # หรือ "bottom", "right", "left" ตามความเหมาะสม
+  )
+```
+
+```{r}
+```
+
